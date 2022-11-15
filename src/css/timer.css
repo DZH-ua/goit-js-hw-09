@@ -1,0 +1,22 @@
+body {
+  padding-left: 30px;
+}
+
+.timer {
+  display: flex;
+  gap: 30px;
+  text-align: center;
+  padding-top: 30px;
+}
+
+.label {
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: 40;
+  font-weight: 600;
+}
+.label {
+  display: block;
+}
