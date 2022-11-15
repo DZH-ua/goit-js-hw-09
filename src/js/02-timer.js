@@ -38,12 +38,13 @@ function onButtonClickStartTimer() {
   refs.startBtn.disabled = true;
   console.log('Запустили');
   convertMs(deltaTime);
-  timerId = setInterval(() => {
+  const timerId = setInterval(() => {
     if (deltaTime > 1000) {
       deltaTime -= 1000;
       convertMs(deltaTime);
     } else {
-      stop();
+      clearInterval(timerId);
+      console.log('Остановили');
       convertMs(0);
     }
   }, 1000);
@@ -73,11 +74,6 @@ function updateTimer({ days, hours, minutes, seconds }) {
   refs.timerHoursEl.textContent = addLeadingZero(`${hours}`);
   refs.timerMinutesEl.textContent = addLeadingZero(`${minutes}`);
   refs.timerSecondsEl.textContent = addLeadingZero(`${seconds}`);
-}
-
-function stop() {
-  clearInterval(timerId);
-  console.log('Остановили');
 }
 
 function addLeadingZero(value) {
