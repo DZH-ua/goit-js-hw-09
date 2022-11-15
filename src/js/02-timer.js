@@ -38,7 +38,15 @@ function onButtonClickStartTimer() {
   refs.startBtn.disabled = true;
   console.log('Запустили');
   convertMs(deltaTime);
-  timerId = setInterval(start, 1000);
+  timerId = setInterval(() => {
+    if (deltaTime > 1000) {
+      deltaTime -= 1000;
+      convertMs(deltaTime);
+    } else {
+      stop();
+      convertMs(0);
+    }
+  }, 1000);
 }
 
 function convertMs(ms) {
@@ -65,16 +73,6 @@ function updateTimer({ days, hours, minutes, seconds }) {
   refs.timerHoursEl.textContent = addLeadingZero(`${hours}`);
   refs.timerMinutesEl.textContent = addLeadingZero(`${minutes}`);
   refs.timerSecondsEl.textContent = addLeadingZero(`${seconds}`);
-}
-
-function start() {
-  if (deltaTime > 1000) {
-    deltaTime -= 1000;
-    convertMs(deltaTime);
-  } else {
-    stop();
-    convertMs(0);
-  }
 }
 
 function stop() {
