@@ -12,6 +12,8 @@ const refs = {
 };
 
 let deltaTime = 0;
+let timerId = null;
+
 refs.startBtn.addEventListener('click', onButtonClickStartTimer);
 refs.startBtn.disabled = true;
 
@@ -38,16 +40,7 @@ function onButtonClickStartTimer() {
   refs.startBtn.disabled = true;
   console.log('Запустили');
   convertMs(deltaTime);
-  const timerId = setInterval(() => {
-    if (deltaTime > 1000) {
-      deltaTime -= 1000;
-      convertMs(deltaTime);
-    } else {
-      clearInterval(timerId);
-      console.log('Остановили');
-      convertMs(0);
-    }
-  }, 1000);
+  timerId = setInterval(start, 1000);
 }
 
 function convertMs(ms) {
@@ -78,4 +71,19 @@ function updateTimer({ days, hours, minutes, seconds }) {
 
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
+}
+
+function start() {
+  if (deltaTime > 1000) {
+    deltaTime -= 1000;
+    convertMs(deltaTime);
+  } else {
+    stop();
+  }
+}
+
+function stop() {
+  clearInterval(timerId);
+  console.log('Остановили');
+  convertMs(0);
 }
