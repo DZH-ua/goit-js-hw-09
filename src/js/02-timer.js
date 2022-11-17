@@ -11,79 +11,90 @@ const refs = {
   timerSecondsEl: document.querySelector('[data-seconds]'),
 };
 
-let deltaTime = 0;
-let timerId = null;
+const timer = {
+  timerId: null,
+  deltaTime: 0,
 
-refs.startBtn.addEventListener('click', onButtonClickStartTimer);
-refs.startBtn.disabled = true;
+  getDate() {
+    flatpickr('input#datetime-picker', {
+      enableTime: true,
+      time_24hr: true,
+      defaultDate: new Date(),
+      minuteIncrement: 1,
+      onClose(selectedDates) {
+        timer.checkDate(selectedDates[0]);
+        console.log(selectedDates[0]);
+      },
+    });
+  },
 
-flatpickr('input#datetime-picker', {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
+  checkDate(date) {
     const currentDate = new Date();
-    if (currentDate < selectedDates[0]) {
+    if (currentDate < date) {
       refs.startBtn.disabled = false;
-      deltaTime = selectedDates[0] - currentDate;
-      console.log(deltaTime);
+      this.deltaTime = date - currentDate;
+      const time = convertMs(this.deltaTime);
+      updateTimerFace(time);
     } else {
       refs.startBtn.disabled = true;
       Notiflix.Notify.failure('Please, choose a date in the future!');
     }
-    console.log(selectedDates[0]);
   },
-});
 
-function onButtonClickStartTimer() {
-  refs.startBtn.disabled = true;
-  console.log('Запустили');
-  convertMs(deltaTime);
-  timerId = setInterval(start, 1000);
-}
+  checkTimerValue() {
+    if (this.deltaTime >= 1000) {
+      this.deltaTime -= 1000;
+      console.log(this.deltaTime);
+      const time = convertMs(this.deltaTime);
+      updateTimerFace(time);
+    } else {
+      this.stop();
+    }
+  },
+
+  start() {
+    refs.startBtn.disabled = true;
+    console.log('Запустили');
+
+    this.timerId = setInterval(() => {
+      this.checkTimerValue();
+    }, 1000);
+  },
+
+  stop() {
+    clearInterval(this.timerId);
+    console.log('Остановили');
+  },
+};
 
 function convertMs(ms) {
-  // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
 
-  // Remaining days
   const days = Math.floor(ms / day);
-  // Remaining hours
   const hours = Math.floor((ms % day) / hour);
-  // Remaining minutes
   const minutes = Math.floor(((ms % day) % hour) / minute);
-  // Remaining seconds
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
-  updateTimer({ days, hours, minutes, seconds });
-  // return { days, hours, minutes, seconds };
-}
 
-function updateTimer({ days, hours, minutes, seconds }) {
-  refs.timerDaysEl.textContent = addLeadingZero(`${days}`);
-  refs.timerHoursEl.textContent = addLeadingZero(`${hours}`);
-  refs.timerMinutesEl.textContent = addLeadingZero(`${minutes}`);
-  refs.timerSecondsEl.textContent = addLeadingZero(`${seconds}`);
+  return { days, hours, minutes, seconds };
 }
 
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
 }
 
-function start() {
-  if (deltaTime > 1000) {
-    deltaTime -= 1000;
-    convertMs(deltaTime);
-  } else {
-    stop();
-  }
+function updateTimerFace({ days, hours, minutes, seconds }) {
+  refs.timerDaysEl.textContent = addLeadingZero(`${days}`);
+  refs.timerHoursEl.textContent = addLeadingZero(`${hours}`);
+  refs.timerMinutesEl.textContent = addLeadingZero(`${minutes}`);
+  refs.timerSecondsEl.textContent = addLeadingZero(`${seconds}`);
 }
 
-function stop() {
-  clearInterval(timerId);
-  console.log('Остановили');
-  convertMs(0);
-}
+timer.getDate();
+
+refs.startBtn.disabled = true;
+refs.startBtn.addEventListener('click', () => {
+  timer.start();
+});
